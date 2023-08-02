@@ -9,6 +9,9 @@ nlp = spacy.load("en_core_web_sm")
 
 data = pd.read_csv(r"D:\NLP for ESG project\data_cleanning\sentences_output.csv" ,encoding='mac_roman') 
 
+# Remove newline characters '\n'
+data['Sentence'] = data['Sentence'].str.replace(r'\n', ' ')
+
 # Removing Punctuations
 data['Sentence'] = data['Sentence'].apply(lambda x: x.translate(str.maketrans('','', string.punctuation)))
 
@@ -46,6 +49,9 @@ def stop_word(text):
     return " ".join(temp)
 
 data['Sentence']=data['Sentence'].apply(lambda x : stop_word(x) )
+
+# Remove rows with empty or whitespace-only Sentence
+data = data[data['Sentence'].str.strip().astype(bool)]
 
 # create csv file.
 output_file_path = r"D:\NLP for ESG project\data_cleanning\processed_sentences.csv"
