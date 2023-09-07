@@ -7,7 +7,7 @@ import pandas as pd
 
 nlp = spacy.load("en_core_web_sm")
 
-data = pd.read_csv(r"D:\NLP for ESG project\data_cleanning\sentences_output.csv" ,encoding='mac_roman') 
+data = pd.read_csv(r"sentences_output.csv" ,encoding='mac_roman') 
 
 # Remove newline characters '\n'
 data['Sentence'] = data['Sentence'].str.replace(r'\n', ' ')
@@ -48,13 +48,30 @@ def stop_word(text):
             temp.append(t.text)
     return " ".join(temp)
 
+
+def remove_extra_whitespace(sentence):
+    # Removing extra spaces and tabs from the sentence
+    return re.sub(r'\s+', ' ', sentence).strip()
+
+def remove_person_names(sentence):
+
+    # Process the sentence with the NLP pipeline
+    doc = nlp(sentence)
+
+    # Filter out person names and return the sentence without them
+    filtered_sentence = ' '.join(token.text for token in doc if token.ent_type_ != 'PERSON')
+    return filtered_sentence
+
 data['Sentence']=data['Sentence'].apply(lambda x : stop_word(x) )
 
 # Remove rows with empty or whitespace-only Sentence
 data = data[data['Sentence'].str.strip().astype(bool)]
 
-# create csv file.
-output_file_path = r"D:\NLP for ESG project\data_cleanning\processed_sentences.csv"
-data.to_csv(output_file_path, index=False, encoding='utf-8')
+data['Sentence'] = data['Sentence'].apply(remove_extra_whitespace)
+data['Sentence'] = data['Sentence'].apply(remove_person_names)
 
-print("Processed data saved to:", output_file_path)
+# # create csv file.
+# output_file_path = r"processed_sentences.csv"
+# data.to_csv(output_file_path, index=False, encoding='utf-8')
+
+# print("Processed data saved to:", output_file_path)
