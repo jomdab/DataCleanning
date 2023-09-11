@@ -8,7 +8,7 @@ classifier = pipeline("text-classification", model="nbroad/ESG-BERT", device='cp
 tokenizer = AutoTokenizer.from_pretrained("nbroad/ESG-BERT")
 output_folder = "output"
 
-def get_report_score(sentences,abv,year):
+def get_report_score(sentences,file):
     scores = [0.0]*26
     for sent in sentences:
         result = classifier(sent[0],top_k=None)
@@ -16,7 +16,7 @@ def get_report_score(sentences,abv,year):
             scores[i] += result[i]['score']
 
 
-    csv_filename = os.path.join(output_folder, f"{abv}{year}.csv")
+    csv_filename = os.path.join(output_folder, f"{file}.csv")
 
     # Write the label-score pairs to the CSV file
     with open(csv_filename, 'w', newline='') as csvfile:

@@ -7,22 +7,22 @@ import pandas as pd
 
 nlp = spacy.load("en_core_web_sm")
 
-data = pd.read_csv(r"sentences_output.csv" ,encoding='mac_roman') 
+# data = pd.read_csv(r"sentences_output.csv" ,encoding='mac_roman') 
 
-# Remove newline characters '\n'
-data['Sentence'] = data['Sentence'].str.replace(r'\n', ' ')
+# # Remove newline characters '\n'
+# data['Sentence'] = data['Sentence'].str.replace(r'\n', ' ')
 
-# Removing Punctuations
-data['Sentence'] = data['Sentence'].apply(lambda x: x.translate(str.maketrans('','', string.punctuation)))
+# # Removing Punctuations
+# data['Sentence'] = data['Sentence'].apply(lambda x: x.translate(str.maketrans('','', string.punctuation)))
 
 # removing urls
 def remove_URL(text):
     url = re.compile(r'https?://\S+|www\.\S+')
     return url.sub(r'',text)
-data['Sentence']=data['Sentence'].apply(lambda x : remove_URL(x))
+# data['Sentence']=data['Sentence'].apply(lambda x : remove_URL(x))
 
-# removing numbers
-data['Sentence']=data['Sentence'].apply(lambda x : ''.join([i for i in x if not i.isdigit()]))
+# # removing numbers
+# data['Sentence']=data['Sentence'].apply(lambda x : ''.join([i for i in x if not i.isdigit()]))
 
 # Removing Special Characters
 def remove_special_characters(text):
@@ -30,7 +30,7 @@ def remove_special_characters(text):
     cleaned_text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return cleaned_text
 
-data['Sentence'] = data['Sentence'].apply(lambda x: remove_special_characters(x))
+# data['Sentence'] = data['Sentence'].apply(lambda x: remove_special_characters(x))
 
 # lemmatization
 def lemmatization(text):
@@ -38,7 +38,7 @@ def lemmatization(text):
     for t in nlp(text):
         temp.append(t.lemma_)
     return " ".join(temp)
-data['Sentence']=data['Sentence'].apply(lambda x : lemmatization(x) )
+# data['Sentence']=data['Sentence'].apply(lambda x : lemmatization(x) )
 
 # Stop word
 def stop_word(text):
@@ -62,13 +62,13 @@ def remove_person_names(sentence):
     filtered_sentence = ' '.join(token.text for token in doc if token.ent_type_ != 'PERSON')
     return filtered_sentence
 
-data['Sentence']=data['Sentence'].apply(lambda x : stop_word(x) )
+# data['Sentence']=data['Sentence'].apply(lambda x : stop_word(x) )
 
-# Remove rows with empty or whitespace-only Sentence
-data = data[data['Sentence'].str.strip().astype(bool)]
+# # Remove rows with empty or whitespace-only Sentence
+# data = data[data['Sentence'].str.strip().astype(bool)]
 
-data['Sentence'] = data['Sentence'].apply(remove_extra_whitespace)
-data['Sentence'] = data['Sentence'].apply(remove_person_names)
+# data['Sentence'] = data['Sentence'].apply(remove_extra_whitespace)
+# data['Sentence'] = data['Sentence'].apply(remove_person_names)
 
 # # create csv file.
 # output_file_path = r"processed_sentences.csv"

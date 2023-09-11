@@ -60,13 +60,12 @@ class AnnualReportClassifier:
         return valid_classification_results
 
     def process_report(self,text):
-        name = self.file_path[1]
-        year = self.file_path[-1].split('.')[0]
+        file = self.file_path.split('\\')[2].split('.')[0]
         # Classify sentences
         classification_results = self.classify_sentences(text)
         # Excluding None-ESG sentences
         valid_classification_results = self.exclude_none_esg_sentences(classification_results)
-        output_file_path = os.path.join('output', f"valid_{name}{year}.csv")
+        output_file_path = os.path.join('output', f"valid_{file}.csv")
         self.save_classification_to_csv(valid_classification_results, output_file_path)
         # print(f"Valid classification results have been saved to {output_file_path}.")
         # print(f"E = {self.E} sentences")

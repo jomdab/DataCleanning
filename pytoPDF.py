@@ -82,24 +82,24 @@ def remove_table_of_contents(sentences, min_words=3):
 
 
 # import PDF file
-report_text = extract_text_from_pdf(file_path='input.pdf')
-sents = tokenize_sentences(report_text)
-# cleaned_sentences = [sentence.replace("\n", " ") for sentence in sents]
-cleaned_sentences = remove_table_of_contents(sents)
+# report_text = extract_text_from_pdf(file_path='input.pdf')
+# sents = tokenize_sentences(report_text)
+# # cleaned_sentences = [sentence.replace("\n", " ") for sentence in sents]
+# cleaned_sentences = remove_table_of_contents(sents)
 
-print("sentence number =", len(cleaned_sentences))
+# print("sentence number =", len(cleaned_sentences))
 
-# Get the current working directory
-current_dir = os.path.dirname(os.path.abspath(__file__))
+# # Get the current working directory
+# current_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Create a CSV file in the same directory as the script
-output_file_path = os.path.join('', "sentences_output.csv")
+# # Create a CSV file in the same directory as the script
+# output_file_path = os.path.join('', "sentences_output.csv")
 
-# Write sentences to the CSV file
-with open(output_file_path, "w", newline="", encoding="utf-8") as output_file:
-    csv_writer = csv.writer(output_file)
-    csv_writer.writerow(["Sentence Index", "Sentence"])
-    for index, sentence in enumerate(cleaned_sentences, start=1):
-        csv_writer.writerow([index, sentence])
+# # Write sentences to the CSV file
+# with open(output_file_path, "w", newline="", encoding="utf-8") as output_file:
+#     csv_writer = csv.writer(output_file)
+#     csv_writer.writerow(["Sentence Index", "Sentence"])
+#     for index, sentence in enumerate(cleaned_sentences, start=1):
+#         csv_writer.writerow([index, sentence])
 
-print("Sentences written to:", output_file_path)
+# print("Sentences written to:", output_file_path)

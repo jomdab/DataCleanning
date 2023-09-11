@@ -48,7 +48,7 @@ def cleaning_text(sent):
 
 
 def process_file(file_path):
-    component = file_path.split('\\')
+    file = file_path.split('\\')[2].split('.')[0]
     sentences = []
     sentences = pdf_to_text(file_path)
     if(len(sentences) == 0):
@@ -56,9 +56,9 @@ def process_file(file_path):
     else:
         sentences = cleaning_text(sentences)
         #classify by Finbert (E,S,G,N)
-        classifier = AnnualReportClassifier(component)
+        classifier = AnnualReportClassifier(file_path)
         sentences = classifier.process_report(sentences)
-        ESGbertClassifier.get_report_score(sentences=sentences,abv=component[1],year=component[-1].split('.')[0])
+        ESGbertClassifier.get_report_score(sentences=sentences,file=file)
 
 
 def find_and_list_files(root_folder, target_folder_name):
