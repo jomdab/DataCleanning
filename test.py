@@ -1,6 +1,17 @@
 import csv
 import random
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.linear_model import ElasticNet
+from sklearn.linear_model import SGDRegressor
+from sklearn.svm import SVR
+from sklearn.linear_model import BayesianRidge
+from sklearn.kernel_ridge import KernelRidge
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
+# from sklearn.preprocessing import normalize
+from sklearn.model_selection import train_test_split
 
 def r2(output,target):
     mean = sum(output) / len(output)
@@ -16,29 +27,31 @@ def r2(output,target):
 
 def normalize(data):
     normalized_data = []
+    min_val = min(min(row) for row in data)
+    max_val = max(max(row) for row in data)
     for row in data:
         temp = []
         for element in row:
-            temp.append((element-min(row))/(max(row)-min(row)))
+            temp.append((element-min_val)/(max_val-min_val))
         normalized_data.append(temp)
     return normalized_data
 
-def train_test_split(input,target,ratio):
-    num_sample = int(ratio*len(input))
+# def train_test_split(input,target,ratio):
+#     num_sample = int(ratio*len(input))
     
-    #create random indices
-    indices = list(range(len(input)))
-    random.shuffle(indices)
+#     #create random indices
+#     indices = list(range(len(input)))
+#     random.shuffle(indices)
 
-    #split train and test set
-    train_data = indices[:num_sample]
-    test_data = indices[num_sample:]
+#     #split train and test set
+#     train_data = indices[:num_sample]
+#     test_data = indices[num_sample:]
 
-    X_train = [input[i] for i in train_data]
-    y_train = [target[i] for i in train_data]
-    X_test = [input[i] for i in test_data]
-    y_test = [target[i] for i in test_data]
-    return X_train,X_test,y_train,y_test
+#     X_train = [input[i] for i in train_data]
+#     y_train = [target[i] for i in train_data]
+#     X_test = [input[i] for i in test_data]
+#     y_test = [target[i] for i in test_data]
+#     return X_train,X_test,y_train,y_test
 
 
 def load_data(file):
@@ -60,19 +73,19 @@ def main():
     file = 'dataset.csv'
     input, target = load_data(file)
     normalized_input = normalize(input)
-    noramlized_target = [i/100 for i in target]
-    for i in range(5):
-        print(normalized_input[i])
-        print(noramlized_target[i])
-    X_train,X_test,y_train,y_test = train_test_split(normalized_input,target,0.8)
+    # for i in range(5):
+    #     print(normalized_input[i])
+    #     print(noramlized_target[i])
+    X_train,X_test,y_train,y_test = train_test_split(normalized_input,target,test_size=0.2,shuffle=False)
 
     #train model
-    model = LinearRegression()
+    model = RandomForestRegressor()
     model.fit(X_train, y_train)
 
     #evaluate
     y_pred = model.predict(X_test)
-    print("r2 of model = ",r2(y_pred,y_test))
+    print("r2 of model = ",r2_score(y_pred=y_pred,y_true=y_test))
+    print("mse = ",mean_squared_error(y_pred=y_pred,y_true=y_test))
 
     #write prediction result to csv file
     write_data = list(zip(y_pred,y_test))

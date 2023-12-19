@@ -1,8 +1,8 @@
 import os
-import pytoPDF
+import pdf_to_sent as pts
 import string
 import data_cleanning
-from annualReportClassifier import AnnualReportClassifier
+from FinbertClassifier import AnnualReportClassifier
 import ESGbertClassifier
 
 def find_subfolder(root_folder, target_folder_name):
@@ -28,22 +28,22 @@ def list_files_in_folder(folder_path):
     return file_paths
 
 def pdf_to_text(file_path):
-    report_text = pytoPDF.extract_text_from_pdf(file_path=file_path)
-    sents = pytoPDF.tokenize_sentences(report_text)
+    report_text = pts.extract_text_from_pdf(file_path=file_path)
+    sents = pts.tokenize_sentences(report_text)
     # cleaned_sentences = [sentence.replace("\n", " ") for sentence in sents]
-    cleaned_sentences = pytoPDF.remove_table_of_contents(sents)
+    cleaned_sentences = pts.remove_table_of_contents(sents)
     return cleaned_sentences
 
 def cleaning_text(sent):
-    sent = [s.translate(str.maketrans('', '', string.punctuation)) for s in sent]   #remove punctuation
+    # sent = [s.translate(str.maketrans('', '', string.punctuation)) for s in sent]   #remove punctuation
     sent = [data_cleanning.remove_URL(s) for s in sent] #remove URL
     sent = [''.join([char for char in s if not char.isdigit()]) for s in sent]  #remove number
     sent = [data_cleanning.remove_special_characters(s) for s in sent]  #remove special character
-    sent = [data_cleanning.lemmatization(s) for s in sent]  #lemmatization
-    sent = [data_cleanning.stop_word(s) for s in sent]  #remove stop_word
+    # sent = [data_cleanning.lemmatization(s) for s in sent]  #lemmatization
+    # sent = [data_cleanning.stop_word(s) for s in sent]  #remove stop_word
     sent = [s for s in sent if s.strip()]
     sent = [data_cleanning.remove_extra_whitespace(s) for s in sent]
-    sent = [data_cleanning.remove_person_names(s) for s in sent]
+    # sent = [data_cleanning.remove_person_names(s) for s in sent]
     return sent
 
 
