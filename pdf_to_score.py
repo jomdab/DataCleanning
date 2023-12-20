@@ -30,11 +30,13 @@ def list_files_in_folder(folder_path):
 def pdf_to_text(file_path):
     report_text = pts.extract_text_from_pdf(file_path=file_path)
     sents = pts.tokenize_sentences(report_text)
+    upper,lower = pts.cal_limit(sents,dev_fac=0.35)
     # cleaned_sentences = [sentence.replace("\n", " ") for sentence in sents]
     cleaned_sentences = pts.remove_table_of_contents(sents)
-    return cleaned_sentences
+    cleaned_sentences = pts.split_long_sentences(cleaned_sentences,upper,lower)
+    return cleaned_sentences,upper,lower
 
-def cleaning_text(sent):
+def cleaning_text(sent,upper,lower):
     # sent = [s.translate(str.maketrans('', '', string.punctuation)) for s in sent]   #remove punctuation
     sent = [data_cleanning.remove_URL(s) for s in sent] #remove URL
     sent = [''.join([char for char in s if not char.isdigit()]) for s in sent]  #remove number
@@ -44,17 +46,18 @@ def cleaning_text(sent):
     sent = [s for s in sent if s.strip()]
     sent = [data_cleanning.remove_extra_whitespace(s) for s in sent]
     # sent = [data_cleanning.remove_person_names(s) for s in sent]
+    sent = pts.split_long_sentences(sent,upper,lower)
     return sent
 
 
 def process_file(file_path):
     file = file_path.split('\\')[2].split('.')[0]
     sentences = []
-    sentences = pdf_to_text(file_path)
+    sentences,upper,lower = pdf_to_text(file_path)
     if(len(sentences) == 0):
         print("Cannot extract text from file ",file_path)
     else:
-        sentences = cleaning_text(sentences)
+        sentences = cleaning_text(sentences,upper,lower)
         #classify by Finbert (E,S,G,N)
         classifier = AnnualReportClassifier(file_path)
         sentences = classifier.process_report(sentences)

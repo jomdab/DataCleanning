@@ -3,6 +3,8 @@ from nltk.tokenize import sent_tokenize
 import fitz
 from nltk.stem.snowball import SnowballStemmer
 import fitz
+import matplotlib.pyplot as plt
+import statistics
 
 def extract_text_from_pdf(file_path):
     report_text = ""
@@ -22,26 +24,24 @@ def calculate_digit_percentage(sentence):
 def tokenize_sentences(text):
     return sent_tokenize(text)
 
-def split_long_sentences(sentence, max_length=512):
-    # Helper function to split long sentences into chunks
-    words = sentence.split()
-    chunks = []
-    current_chunk = ""
-    for word in words:
-        if len(current_chunk) + len(word) + 1 <= max_length:  # +1 for space
-            current_chunk += word + " "
-        else:
-            chunks.append(current_chunk.strip())
-            current_chunk = word + " "
-    if current_chunk.strip():
-        chunks.append(current_chunk.strip())
-    return chunks
+def cal_limit(sentences,dev_fac=1):
+    lengths = [len(sentence.split()) for sentence in sentences]
+    std_dev = statistics.stdev(lengths)
+    avg_length = avg_len(sentences)
+    upper_limit = avg_length + (dev_fac * std_dev)
+    lower_limit = avg_length - (dev_fac * std_dev)
+    return upper_limit,lower_limit
 
-def remove_table_of_contents(sentences, min_words=3):
+def split_long_sentences(sentences,upper,lower):
+    filtered_sentences = [sentence for sentence in sentences if lower <= len(sentence.split()) <= upper]
+    return filtered_sentences
+
+def remove_table_of_contents(sentences):
     cleaned_sentences = []
     for sentence in sentences:
         # Removing leading and trailing whitespaces
         sentence = sentence.strip()
+        sentence = re.sub(r'\s+', ' ', sentence)
 
         # Ignore sentences starting with "Table of Contents" or "Contents"
         if (
@@ -49,37 +49,35 @@ def remove_table_of_contents(sentences, min_words=3):
             or sentence.lower().startswith("contents")
             or re.search(r'\.{6,}', sentence)  # Check for multiple dots
             or re.search(r'-\s*-\s*-', sentence)
+            or calculate_digit_percentage(sentence) > 50
         ):
             continue
-
-        # Split long sentences into shorter chunks
-        chunks = split_long_sentences(sentence)
-
-        for chunk in chunks:
-            # Counting words in the chunk
-            num_words = len(chunk.split())
-
-            # Exclude chunks that have fewer words than the minimum threshold
-            if num_words >= min_words:
-                # Removing extra whitespace characters
-                chunk = re.sub(r'\s+', ' ', chunk)
-
-                # Calculate the percentage of digits in the chunk
-                digit_percentage = calculate_digit_percentage(chunk)
-
-                # Exclude chunks containing more than 50% digits
-                if digit_percentage <= 50:
-                    cleaned_sentences.append(chunk)
-
+        else:
+            cleaned_sentences.append(sentence)
     return cleaned_sentences
 
+# def plot_sentence_length_distribution(sentences):
+#     sentence_lengths = [len(sentence.split()) for sentence in sentences]
+#     max_length = max(sentence_lengths)
+#     sentence_lengths.sort()
+#     print(sentence_lengths)
+#     plt.hist(sentence_lengths, bins=range(0, max_length, 5), alpha=0.7, color='blue')
+#     plt.xlabel('Sentence Length')
+#     plt.ylabel('Frequency')
+#     plt.title('Distribution of Sentence Lengths')
+#     plt.grid(True)
+#     plt.show()
+
+def avg_len(sentences):
+    num_sentences = len(sentences)
+    avg_sentence_length = sum(len(sentence.split()) for sentence in sentences) / num_sentences
+    return avg_sentence_length
 
 # import PDF file
 # import os
 # import csv
 # report_text = extract_text_from_pdf(file_path='done/ADVANC/ADVANC2018.pdf')
 # sents = tokenize_sentences(report_text)
-# # cleaned_sentences = [sentence.replace("\n", " ") for sentence in sents]
 # cleaned_sentences = remove_table_of_contents(sents)
 
 # print("sentence number =", len(cleaned_sentences))
